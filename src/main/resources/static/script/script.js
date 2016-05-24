@@ -10,10 +10,6 @@ var sidebar = L.control.sidebar('sidebar', {
 });
 map.addControl(sidebar);
 
-setTimeout(function () {
-  sidebar.show();
-}, 500);
-
 function openSideBar(){
   sidebar.toggle();
 }
