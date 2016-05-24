@@ -14,39 +14,8 @@ setTimeout(function () {
   sidebar.show();
 }, 500);
 
-var redMarker = L.AwesomeMarkers.icon({
-  icon: 'ion-alert-circled',
-  prefix: 'ion',
-  markerColor: 'red'
-});
-
-  var blueMarker = L.AwesomeMarkers.icon({
-  icon: 'ion-information-circled',
-  prefix: 'ion',
-  markerColor: 'blue'
-});
-
-var obJS = {title:'',
-  type:'',
-  img: ''
-};
-
-function addMarker (lat,lng,name,type,imgUrl) {
-  obJS.title = name;
-  obJS.img = imgUrl;
-  obJS.type = type;
-
-  if(type === 'OK'){
-    var marker = L.marker([lat, lng],{icon: blueMarker}).addTo(map).on('click', function () {
-      sidebar.toggle();
-    });
-  }
-  else{
-    var marker2 = L.marker([lat, lng],{icon: redMarker}).addTo(map).on('click', function () {
-      sidebar.toggle();
-
-    });
-  }
+function openSideBar(){
+  sidebar.toggle();
 }
 
 map.on('click', function () {
