@@ -67,22 +67,6 @@ public class MainController {
 		return currentEpoch;
 	}
 	
-	public JSONArray getLatestImg(Date date){
-		// LOD4ALL data is only between 24feb and 26feb, so it will be simulated
-		long epoch = getSimulatedEpoch(date.getTime());
-		
-		// initialize LOD4ALL API
-		LOD4All lod4All = LOD4All.initialize("xawsaykmcb");
-		
-		// execute query
-		String query = "SELECT DISTINCT * WHERE { GRAPH <"+CUATRO_CAMINOS_GRAPH+"> { ?s dc:last_modified ?lm . FILTER(xsd:integer(?lm) <= "+epoch+") } }"
-				+ "ORDER BY DESC(?lm) LIMIT 1";
-		lod4All.query(query).showQuery();
-		JSONArray result = lod4All.runQuery2Json(false);
-		
-		return result;
-	}
-	
 	public JSONArray getLatestImg(long currEpoch){
 		// LOD4ALL data is only between 24feb and 26feb, so it will be simulated
 		long epoch = getSimulatedEpoch(currEpoch);
@@ -97,6 +81,10 @@ public class MainController {
 		JSONArray result = lod4All.runQuery2Json(false);
 		
 		return result;
+	}
+	
+	public JSONArray getLatestImg(Date date){
+		return getLatestImg(date.getTime());
 	}
 	
 	/**
