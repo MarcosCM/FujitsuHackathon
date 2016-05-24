@@ -5,35 +5,33 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.Date;
 
 import org.json.JSONArray;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import net.lod4all.api.LOD4All;
-import sv.entities.ClientFilterMessage;
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.query.Query;
+import com.hp.hpl.jena.query.QueryExecution;
+import com.hp.hpl.jena.query.QueryExecutionFactory;
+import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.query.QuerySolution;
+import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.util.FileManager;
 
 @Controller
 @PropertySource(value = { "classpath:network.properties" })
 public class MainController {
-	
-	private static final Logger logger = LoggerFactory.getLogger(MainController.class);
 	
 	@Value("${mls.host}")
 	public String MLS_HOST;
@@ -51,36 +49,69 @@ public class MainController {
 	private static final String NOTIFICATION_ALERT_COLOR = "#ff0000";
 	private static final String NOTIFICATION_OK_COLER = "#0000ff";
 	private static final String NOTIFICATION_ALERT_MSG = "ALERT";
-	private static final String NOTIFICATION_OK_MSG = "OK" ;
+	private static final String NOTIFICATION_OK_MSG = "OK";
 	
 	private static final String CAMERA_CUATRO_CAMINOS = "Cuatro caminos";
 	private static final String CUATRO_CAMINOS_GRAPH = "http://datos.gob.es/catalogo/camara-de-cuatro-caminos";
+	private static final String CUATRO_CAMINOS_URI = "http://datos.santander.es/api/rest/datasets/camara_cuatro_caminos.rdf";
 	
 	private static final String WS_SUBSCRIPTION_ENDPOINT_CUATRO_CAMINOS = "/cam_cuatro_caminos";
 	
 	private static final long L4A_LAST_EPOCH = 1456355446354L;
 	private static final long L4A_FIRST_EPOCH = 1456472692208L;
-	
+	/*
 	public long getSimulatedEpoch(long currentEpoch){
 		currentEpoch = currentEpoch%(L4A_LAST_EPOCH-L4A_FIRST_EPOCH);
 		currentEpoch += L4A_FIRST_EPOCH;
 		return currentEpoch;
-	}
+	}*/
 	
 	public JSONArray getLatestImg(long currEpoch){
+		Model model = FileManager.get().loadModel(CUATRO_CAMINOS_URI);
+		
+		String queryStr = "PREFIX dc: <http://purl.org/dc/elements/1.1/> "
+				+ "SELECT DISTINCT ?s ?p ?o WHERE { GRAPH <"+CUATRO_CAMINOS_GRAPH+"> { ?s ?p ?o . ?s dc:modified ?lm . FILTER(xsd:integer(?lm) <= "+currEpoch+") } } "
+				+ "ORDER BY DESC(?lm) LIMIT 1";
+		
+		Query query = QueryFactory.create(queryStr);
+        QueryExecution qexec = QueryExecutionFactory.create(query, model);
+        try {
+            ResultSet results = qexec.execSelect();
+            for (; results.hasNext();) {
+                String sentencia = "";
+                QuerySolution soln = results.nextSolution();
+                Resource x = soln.getResource("s");
+                sentencia += x.getURI() + " - ";
+                
+                x = soln.getResource("p");
+                sentencia += x.getURI() + " - ";
+                
+                x = soln.getResource("o");
+                sentencia += x.getURI() + " - ";
+                
+                System.out.println(sentencia);
+ 
+            }
+        } finally {
+            qexec.close();
+        }
+		
+		return null;
+		/*
 		// LOD4ALL data is only between 24feb and 26feb, so it will be simulated
 		long epoch = getSimulatedEpoch(currEpoch);
 		
 		// initialize LOD4ALL API
 		LOD4All lod4All = LOD4All.initialize("xawsaykmcb");
 		
+		System.out.println(epoch);
 		// execute query
-		String query = "SELECT DISTINCT * WHERE { GRAPH <"+CUATRO_CAMINOS_GRAPH+"> { ?s dc:last_modified ?lm . FILTER(xsd:integer(?lm) <= "+epoch+") } }"
+		String query = "SELECT DISTINCT * WHERE { GRAPH <"+CUATRO_CAMINOS_GRAPH+"> { ?s dc:modified ?lm . FILTER(xsd:integer(?lm) <= "+epoch+") } } "
 				+ "ORDER BY DESC(?lm) LIMIT 1";
 		lod4All.query(query).showQuery();
 		JSONArray result = lod4All.runQuery2Json(false);
 		
-		return result;
+		return result;*/
 	}
 	
 	public JSONArray getLatestImg(Date date){
@@ -94,8 +125,17 @@ public class MainController {
 	 */
 	@RequestMapping(value = "/get_data", method = RequestMethod.GET)
 	public ResponseEntity<?> get_data(@RequestParam(value = "camera", required = true) String camera,
-			@RequestParam(value = "date", required = true) @DateTimeFormat(pattern="yyyy-MM-dd_hh:mm:ss") Date date) throws Exception{
-		JSONArray res = getLatestImg(date);
+			@RequestParam(value = "date", required = true) String date) throws Exception{
+		int year = Integer.parseInt(date.substring(0, 4));
+		int month = Integer.parseInt(date.substring(5, 7));
+		int day = Integer.parseInt(date.substring(8, 10));
+		int hour = Integer.parseInt(date.substring(11,13));
+		int min = Integer.parseInt(date.substring(14,16));
+		int sec = Integer.parseInt(date.substring(17,19));
+		System.out.printf("%d %d %d %d %d %d\n", year, month, day, hour, min, sec);
+		
+		JSONArray res = getLatestImg(new Date(year, month, day, hour, min, sec));
+		System.out.println(res);
 		return null;
 	}
 	
@@ -108,10 +148,9 @@ public class MainController {
 	 */
 	public boolean feedPredictor() throws UnknownHostException, IOException{
 		boolean res = true;
-		long epoch = getSimulatedEpoch(System.currentTimeMillis());
+		long epoch = System.currentTimeMillis();
 		
 		Socket predictorSocket = new Socket(MLS_HOST, MLS_PORT);
-		logger.info("Connected to the predictor");
 		PrintWriter output = new PrintWriter(predictorSocket.getOutputStream(), false);
 		BufferedReader input = new BufferedReader(new InputStreamReader(predictorSocket.getInputStream()));
 		

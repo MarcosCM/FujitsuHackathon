@@ -32,6 +32,29 @@ app.controller("myCtrl", function($scope, $http) {
     markerColor: 'blue'
   });
 
+  	var socket = null;
+  	var stompClient = null;
+  	socket = new SockJS('/statistics');
+	stompClient = Stomp.over(socket);
+	stompClient.debug = null;
+	stompClient.connect({}, function(frame) {
+		// Subscribe to the shortened URL socket
+		var subscripcion = '/sockets/${hash}';
+		stompClient.subscribe(subscripcion, function(stats){
+			// Refresh charts on data receipt
+			refreshCharts(JSON.parse(stats.body));
+		});
+	});
+	var timer;
+	function resetTimer(){
+		if (timer != null) clearTimeout(timer);
+		timer = setInterval(peticionFiltrada, 5000);
+	}
+	resetTimer();
+	$("#filterButton").click(function(){
+		resetTimer();
+	});
+  
   function onClick() {
 
     $scope.markerData.img = this.options.img;
@@ -39,9 +62,13 @@ app.controller("myCtrl", function($scope, $http) {
     $scope.markerData.type = this.options.type;
 
     var d = new Date();
-    console.log(d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate()+' '+d.getHours()+':'+d.getMinutes()+':'+d.getSeconds());
-
-    $http.get('/get_data?camera='+this.options.title+'&date='+d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()+' '+d.getHours()+':'+d.getMinutes()+':'+d.getSeconds())
+    console.log(d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate()+'-'+d.getHours()+':'+d.getMinutes()+':'+d.getSeconds());
+    var month = (d.getMonth() + 1);
+    if (month < 10) month = '0' + month;
+    var day = d.getDate();
+    if (day<10) day = '0' + day;
+    
+    $http.get('/get_data?camera='+this.options.title+'&date='+d.getFullYear()+'-'+month+'-'+day+' '+d.getHours()+':'+d.getMinutes()+':'+d.getSeconds())
     .success(function(data, status, headers, config) {
       $scope.markerData.img = data.img;
     })
