@@ -1,10 +1,7 @@
 package sv.controllers;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -12,11 +9,11 @@ import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.Date;
 
+import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -25,35 +22,52 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import net.lod4all.api.LOD4All;
+
 @Controller
 @PropertySource(value = { "classpath:network.properties" })
 public class MainController {
 	
 	private static final Logger logger = LoggerFactory.getLogger(MainController.class);
 	
-	@Value("${predictor.host}")
-	public String PREDICTOR_HOST;
-	@Value("${predictor.port}")
-	public int PREDICTOR_PORT;
+	@Value("${mls.host}")
+	public String MLS_HOST;
+	@Value("${mls.port}")
+	public int MLS_PORT;
 	
-	private static final String PREDICT_COMMAND = "PR";
+	private static final String ASK_COMMAND = "AS";
 	private static final String FEED_COMMAND = "FE";
 	// Each FEED_FREQ minutes the web server will provide new images to the predictor
 	private static final long FEED_FREQ = 5;
 	
 	private static final String[] NOTIFICATION_COLOR = { "#ff0000", "#0000ff" };
-	private static final String[] NOTIFICATION_MSG = { "ALERT", "WARNING" };
+	private static final String[] NOTIFICATION_MSG = { "ALERT", "OK" };
+	
+	private static final String[] CAMERA_CUATRO_CAMINOS = {"Cuatro caminos", "43.458395", "-3.826148"};
+	private static final String[] CAMERA_CALVO_SOTELO = {"Calvo Sotelo", "43.461469", "-3.8076"};
+	
+	private static final long LAST_EPOCH = 1456355446354L;
+	private static final long FIRST_EPOCH = 1456472692208L;
 	
 	/**
-	 * Predicts whether there is an alert or a warning in a camera
+	 * Asks the machine learning system whether there is an alert or a warning in a camera
 	 * @param camera Camera URI
 	 * @param date Date of the wanted prediction
 	 * @throws Exception 
 	 */
-	@RequestMapping(value = "/predict", method = RequestMethod.GET)
-	public ResponseEntity<?> predict(@RequestParam(value = "camera", required = true) URI camera,
-			@RequestParam(value = "date", required = true) Date date) throws Exception{
+	@RequestMapping(value = "/ask", method = RequestMethod.GET)
+	public ResponseEntity<?> predict(@RequestParam(value = "camera", required = false) URI camera,
+			@RequestParam(value = "date", required = false) Date date) throws Exception{
+		//long epoch = date.getTime();
+		String resource = "http://datos.gob.es/catalogo/camara-de-cuatro-caminos";
+		String query = "SELECT DISTINCT * WHERE { GRAPH <"+resource+"> { ?s ?p ?o } }";
+		// initialize LOD4ALL API
+		LOD4All lod4All = LOD4All.initialize("xawsaykmcb");
 		
+		// execute query
+		lod4All.query(query).showQuery();
+		JSONArray result = lod4All.runQuery2Json(false);
+		System.out.println(result);
 		return null;
 	}
 	
@@ -115,7 +129,7 @@ public class MainController {
 	 */
 	public boolean feedPredictor() throws UnknownHostException, IOException{
 		boolean res = true;
-		Socket predictorSocket = new Socket(PREDICTOR_HOST, PREDICTOR_PORT);
+		Socket predictorSocket = new Socket(MLS_HOST, MLS_PORT);
 		logger.info("Connected to the predictor");
 		PrintWriter output = new PrintWriter(predictorSocket.getOutputStream(), false);
 		BufferedReader input = new BufferedReader(new InputStreamReader(predictorSocket.getInputStream()));

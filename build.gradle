@@ -34,8 +34,12 @@ dependencies {
     
     // The production code uses the SLF4J logging API at compile time
     compile 'org.slf4j:slf4j-api:1.7.21'
+    compile 'org.json:json:20160212'
 
     compile 'commons-codec:commons-codec:1.10'
     compile 'commons-validator:commons-validator:1.5.0'
     compile 'com.google.guava:guava:19.0'
+    compile 'org.apache.commons:commons-io:1.3.2'
+
+    compile files('lib/lod4all-api-0.1.0.jar')
 }
