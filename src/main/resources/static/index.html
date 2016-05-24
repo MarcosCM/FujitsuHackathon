@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <title>Fujitsu App</title>
+
+  <!-- Material Design-->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.indigo-red.min.css" />
+  <script defer src="https://code.getmdl.io/1.1.3/material.min.js"></script>
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="leaflet/leaflet.css" />
+  <script src="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js"></script>
+  <!-- Sidebar -->
+  <link rel="stylesheet" href="sidebar/L.Control.Sidebar.css" />
+  <script src="sidebar/L.Control.Sidebar.js"></script>
+  <!-- Style -->
+  <link rel="stylesheet" href="style.css" />
+  <!-- Angular -->
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+  <script src="script/app.js"></script>
+  <!-- Ionic Icons & Markers Leaflet -->
+  <link rel="stylesheet" href="http://code.ionicframework.com/ionicons/1.5.2/css/ionicons.min.css">
+  <link rel="stylesheet" href="dist/leaflet.awesome-markers.css">
+  <script src="dist/leaflet.awesome-markers.js"></script>
+
+</head>
+<body ng-app="myApp" ng-controller="myCtrl">
+
+  <div id="sidebar">
+    <a id="view-source" class="mdl-button mdl-js-button mdl-button--raised mdl-color--accent mdl-color-text--accent-contrast">{{ob.title}}</a>
+    <main class="mdl-layout__content">
+      <div class="page-content">
+        <h1>leaflet-sidebar</h1>
+        <p>A responsive sidebar plugin for for <a href="http://leafletjs.com/">Leaflet</a>, a JS library for interactive maps.</p>
+        <p><b>Click on the marker to show the sidebar again when you've closed it.</b></p>
+        <p>Other examples:</p>
+        <ul>
+          <li><a href="listing-markers.html">listing-markers example</a></li>
+          <li><a href="two-sidebars.html">two-sidebars example</a></li>
+        </ul>
+        <p class="lorem">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod lor sit amet.</p>
+      </div>
+    </main>
+  </div>
+
+  <a href="https://github.com/google/material-design-lite/blob/master/templates/article/" target="_blank" id="view-source" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast"><strong>Fujitsu Linked Open Data</strong></a>
+  <div id="map"></div>
+
+  <!-- Google Geocoding -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBb6qPOlPv8BXjQuBgUhH1bxK815o35nig"></script>
+  <script src="script/script.js"></script>
+
+</body>
+</html>

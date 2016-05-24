@@ -1,0 +1,19 @@
+#view-source {
+  position: float;
+  display: block;
+  right: 0;
+  top: 0;
+  text-align:center;
+}
+
+body {
+  height: 100%;
+  padding-bottom: 15px;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+}
+
+#map {
+  height: 95%;
+}
