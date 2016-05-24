@@ -32,7 +32,7 @@ app.controller("myCtrl", function($scope, $http) {
     var d = new Date();
     console.log(d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate()+'_'+d.getHours()+':'+d.getMinutes()+':'+d.getSeconds());
 
-    $http.get('/get_data?camera='+this.options.title+'&date='+d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate()+'_'+d.getHours()+':'+d.getMinutes()+':'+d.getSeconds())
+    $http.get('/get_data?camera='+this.options.title+'&date='+d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()+'_'+d.getHours()+':'+d.getMinutes()+':'+d.getSeconds())
     .success(function(data, status, headers, config) {
       $scope.markerData.img = data.img;
     })
