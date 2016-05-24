@@ -124,7 +124,7 @@ public class MainController {
 		output.flush();
 		// Get ack
 		String ack = input.readLine();
-		if (ack.equals("ALERT")) res = false;
+		if (ack.equals(NOTIFICATION_ALERT_MSG)) res = false;
 		// Close the connection
 		predictorSocket.close();
 		
