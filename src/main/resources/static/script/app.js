@@ -34,25 +34,15 @@ app.controller("myCtrl", function($scope, $http) {
 
   	var socket = null;
   	var stompClient = null;
-  	socket = new SockJS('/statistics');
+  	socket = new SockJS('/test');
 	stompClient = Stomp.over(socket);
 	stompClient.debug = null;
 	stompClient.connect({}, function(frame) {
-		// Subscribe to the shortened URL socket
-		var subscripcion = '/sockets/${hash}';
+		// Subscribe to the cam
+		var subscripcion = '/cam_cuatro_caminos';
 		stompClient.subscribe(subscripcion, function(stats){
-			// Refresh charts on data receipt
-			refreshCharts(JSON.parse(stats.body));
+			
 		});
-	});
-	var timer;
-	function resetTimer(){
-		if (timer != null) clearTimeout(timer);
-		timer = setInterval(peticionFiltrada, 5000);
-	}
-	resetTimer();
-	$("#filterButton").click(function(){
-		resetTimer();
 	});
   
   function onClick() {
