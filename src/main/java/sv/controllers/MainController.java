@@ -73,20 +73,26 @@ public class MainController {
 	public JSONArray getLatestImg(long currEpoch){
 		Model model = FileManager.get().loadModel(CUATRO_CAMINOS_URI);
 		
-		String queryStr = "PREFIX dc: <http://purl.org/dc/elements/1.1/> "
+		String queryStr = "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> "
+				+ "PREFIX dc: <http://purl.org/dc/elements/1.1/> "
 				+ "SELECT DISTINCT ?s ?p ?o WHERE { GRAPH <"+CUATRO_CAMINOS_GRAPH+"> { ?s ?p ?o . ?s dc:modified ?lm . FILTER(xsd:integer(?lm) <= "+currEpoch+") } } "
 				+ "ORDER BY DESC(?lm) LIMIT 1";
 		
 		Query query = QueryFactory.create(queryStr);
         QueryExecution qexec = QueryExecutionFactory.create(query, model);
         try {
+        	System.out.println("ASDASDASD");
             ResultSet results = qexec.execSelect();
+            System.out.println("asdasdasd --" + results.getRowNumber());
             for (; results.hasNext();) {
                 String sentencia = "";
+                System.out.println("fjdjfdjfjf");
                 QuerySolution soln = results.nextSolution();
+                System.out.println("mgmgsmdg");
                 Resource x = soln.getResource("s");
+                System.out.println("12312123");
                 sentencia += x.getURI() + " - ";
-                
+                System.out.println(sentencia);
                 x = soln.getResource("p");
                 sentencia += x.getURI() + " - ";
                 
@@ -94,7 +100,6 @@ public class MainController {
                 sentencia += x.getURI() + " - ";
                 
                 System.out.println(sentencia);
- 
             }
         } finally {
             qexec.close();
