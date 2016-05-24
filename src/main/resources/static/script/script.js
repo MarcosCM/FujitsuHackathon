@@ -1,4 +1,7 @@
-var map = L.map('map');
+var map = L.map('map',{
+	attributionControl: false
+});
+L.control.attribution({position: 'topright'}).addTo(map);
 map.setView([43.462932, -3.811766], 13);
 L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 18,

@@ -8,7 +8,7 @@ app.controller("myCtrl", function($scope, $http) {
   .success(function(data, status, headers, config) {
     if (data.status == "OK"){
       //addMarker(data.results[0].geometry.location.lat,data.results[0].geometry.location.lng,'TITLE TEST','OK','http://placehold.it/350x150');
-      L.marker([data.results[0].geometry.location.lat,data.results[0].geometry.location.lng],{icon: blueMarker, title: 'TITULO', type: 'OK', img: 'http://placehold.it/350x150'}).addTo($scope.map).on('click', onClick);
+      L.marker([data.results[0].geometry.location.lat,data.results[0].geometry.location.lng],{icon: blueMarker, title: 'cuatro_caminos', type: 'OK', img: 'http://placehold.it/350x150'}).addTo($scope.map).on('click', onClick);
     }
   })
   .error(function(error, status, headers, config) {
@@ -28,9 +28,18 @@ app.controller("myCtrl", function($scope, $http) {
   });
 
   function onClick() {
+
+    $http.get('/get_data?camera='+this.options.title)
+    .success(function(data, status, headers, config) {
+      $scope.markerData.img = data.img;
+    })
+    .error(function(error, status, headers, config) {
+      console.log("Error occured");
+    });
+
     $scope.markerData.title = this.options.title;
     $scope.markerData.type = this.options.type;
-    $scope.markerData.img = this.options.img;
+
     console.log($scope.markerData);
     $scope.$apply();
     openSideBar();

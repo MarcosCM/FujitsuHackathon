@@ -17,3 +17,13 @@ body {
 #map {
   height: 95%;
 }
+
+#float-but {
+  position: fixed;
+  display: block;
+  right: 0;
+  bottom: 0;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  z-index: 900;
+}
